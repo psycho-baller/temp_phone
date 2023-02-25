@@ -1,10 +1,12 @@
 # Get an SMS message when a new phone number is added to the website
+import os
 import scrapy
 from twilio.rest import Client
 import dotenv
 
 # Load environment variables from .env file
-dotenv_file = dotenv.find_dotenv()
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+dotenv_file = dotenv.find_dotenv(os.path.join(BASE_DIR, '.env'))
 dotenv.load_dotenv(dotenv_file)
 
 # Set up Twilio API credentials

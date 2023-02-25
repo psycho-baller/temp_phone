@@ -1,3 +1,4 @@
+requirements.txt
 setup.py
 project.egg-info/PKG-INFO
 project.egg-info/SOURCES.txt
