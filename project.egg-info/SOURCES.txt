@@ -1,0 +1,13 @@
+setup.py
+project.egg-info/PKG-INFO
+project.egg-info/SOURCES.txt
+project.egg-info/dependency_links.txt
+project.egg-info/entry_points.txt
+project.egg-info/top_level.txt
+temp_phone/__init__.py
+temp_phone/items.py
+temp_phone/middlewares.py
+temp_phone/pipelines.py
+temp_phone/settings.py
+temp_phone/spiders/__init__.py
+temp_phone/spiders/temp-phone.py
