@@ -1,6 +1,6 @@
+last_used_number.txt
 requirements.txt
 setup.py
-dbs/last_used_number.txt
 project.egg-info/PKG-INFO
 project.egg-info/SOURCES.txt
 project.egg-info/dependency_links.txt

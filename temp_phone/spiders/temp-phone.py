@@ -18,7 +18,7 @@ class PhoneSpider(scrapy.Spider):
     def __init__(self, name=None, **kwargs):
         super().__init__(name, **kwargs)
         # get the last used phone number from a .txt file
-        with open(os.path.join(BASE_DIR, 'dbs/last_used_number.txt'), 'r') as f:
+        with open('last_used_number.txt', 'r') as f:
             number = f.read().strip()
         # Set the last used phone number as a class attribute
         self.last_used_number = number
@@ -65,7 +65,7 @@ class PhoneSpider(scrapy.Spider):
             self.logger.info(f'Sent SMS message: {message.sid}')
 
             # Update the previous phone number with the current phone number
-            with open(os.path.join(BASE_DIR, 'dbs/last_used_number.txt'), 'w') as f:
+            with open('last_used_number.txt', 'w') as f:
                 f.write(current_phone_number)
 
 
