@@ -1,7 +1,8 @@
 # Get an SMS message when a new phone number is added to the website
 import os
-import scrapy
+from scrapy import Spider
 from twilio.rest import Client
+from scrapy.exceptions import CloseSpider
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -9,26 +10,29 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # Define the Spider class to scrape the website
 
 
-class PhoneSpider(scrapy.Spider):
+class PhoneSpider(Spider):
     name = 'phone'
     allowed_domains = ['smsreceivefree.com', 'anonymsms.com']
     # 'https://smsreceivefree.com/country/canada'
     start_urls = ["https://anonymsms.com/united-states/"]
     info_url = 'https://smsreceivefree.com/info/'
-    def __init__(self, name=None, **kwargs):
-        super().__init__(name, **kwargs)
+    def __init__(self, name=None, *args, **kwargs):
+        super().__init__(name, *args, **kwargs)
+        # get the last used phone number from args
+        self.last_used_number = kwargs.get('num')
         # get the last used phone number from a .txt file
-        with open('last_used_number.txt', 'r') as f:
-            number = f.read().strip()
-        # Set the last used phone number as a class attribute
-        self.last_used_number = number
+        # with open('last_used_number.txt', 'r') as f:
+        #     number = f.read().strip()
+        # # Set the last used phone number as a class attribute
+        # self.last_used_number = number
+        
 
     def parse(self, response):
         # Set up environment variables
-        self.account_sid = self.settings.get("")
-        self.auth_token = self.settings.get("")
-        self.twilio_phone_number = self.settings.get("")
-        self.my_phone_number = self.settings.get("")
+        self.account_sid = self.settings.get("TWILIO_ACCOUNT_SID")
+        self.auth_token = self.settings.get("TWILIO_AUTH_TOKEN")
+        self.twilio_phone_number = self.settings.get("TWILIO_PHONE_NUMBER")
+        self.my_phone_number = self.settings.get("TO_PHONE_NUMBER")
         # # Find the phone number element on the page
         # phone_number_element = response.css(
         #     '.row .col-sm-8 a:first-child::text')
@@ -56,7 +60,7 @@ class PhoneSpider(scrapy.Spider):
             # Send an SMS message using Twilio API
             client = Client(self.account_sid, self.auth_token)
             message = client.messages.create(
-                body=f'{current_phone_number} \n {self.info_url}',
+                body=f'\n{current_phone_number} \n {self.info_url}',
                 from_=self.twilio_phone_number,
                 to=self.my_phone_number
             )
@@ -64,9 +68,13 @@ class PhoneSpider(scrapy.Spider):
             # # Print a confirmation message to the console
             self.logger.info(f'Sent SMS message: {message.sid}')
 
-            # Update the previous phone number with the current phone number
-            with open('last_used_number.txt', 'w') as f:
-                f.write(current_phone_number)
+            # stop the periodic job
+            # Raise the CloseSpider exception to stop the spider
+            raise CloseSpider('Condition met')
+
+            # # Save the current phone number to a new .txt file
+            # with open('last_used_number.txt', 'w') as f:
+            #     f.write(current_phone_number)
 
 
 # Run the spider
