@@ -1,20 +1,8 @@
 # Get an SMS message when a new phone number is added to the website
-import os
 import scrapy
 from twilio.rest import Client
-import dotenv
 
-# Load environment variables from .env file
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-dotenv_file = dotenv.find_dotenv(os.path.join(BASE_DIR, '.env'))
-dotenv.load_dotenv(dotenv_file)
 
-# Set up Twilio API credentials
-account_sid = dotenv.get_key(dotenv_file, 'TWILIO_ACCOUNT_SID')
-auth_token = dotenv.get_key(dotenv_file, 'TWILIO_AUTH_TOKEN')
-twilio_phone_number = dotenv.get_key(dotenv_file, 'TWILIO_PHONE_NUMBER')
-my_phone_number = dotenv.get_key(dotenv_file, 'TO_PHONE_NUMBER')
-last_used_number = dotenv.get_key(dotenv_file, 'LAST_USED_NUMBER')
 
 # Define the Spider class to scrape the website
 
@@ -25,6 +13,18 @@ class PhoneSpider(scrapy.Spider):
     # 'https://smsreceivefree.com/country/canada'
     start_urls = ["https://anonymsms.com/united-states/"]
     info_url = 'https://smsreceivefree.com/info/'
+    def __init__(self, name=None, **kwargs):
+        # Set up environment variables
+        self.account_sid = self.settings.get("")
+        self.auth_token = self.settings.get("")
+        self.twilio_phone_number = self.settings.get("")
+        self.my_phone_number = self.settings.get("")
+        # get the last used phone number from a .txt file
+        with open('last_used_number.txt', 'r') as f:
+            number = f.read().strip()
+        # Set the last used phone number as a class attribute
+        self.last_used_number = number
+        super().__init__(name, **kwargs)
 
     def parse(self, response):
         # # Find the phone number element on the page
@@ -48,29 +48,28 @@ class PhoneSpider(scrapy.Spider):
         current_phone_number = self.info_url.split('/')[-1]
 
         # Check if the current phone number is different from the previous phone number
-        if current_phone_number != last_used_number:
+        if current_phone_number != self.last_used_number:
 
-            print(account_sid, auth_token, twilio_phone_number)
+            print(self.account_sid, self.auth_token, self.twilio_phone_number)
             # Send an SMS message using Twilio API
-            client = Client(account_sid, auth_token)
+            client = Client(self.account_sid, self.auth_token)
             message = client.messages.create(
                 body=f'{current_phone_number} \n {self.info_url}',
-                from_=twilio_phone_number,
-                to=my_phone_number
+                from_=self.twilio_phone_number,
+                to=self.my_phone_number
             )
 
             # # Print a confirmation message to the console
             self.logger.info(f'Sent SMS message: {message.sid}')
 
-            # Update the previous phone number variable
-            dotenv.set_key(dotenv_file, 'LAST_USED_NUMBER',
-                                        current_phone_number)
+            # Update the previous phone number with the current phone number
+            with open('last_used_number.txt', 'w') as f:
+                f.write(current_phone_number)
 
 
 # Run the spider
 if __name__ == '__main__':
     # Initialize the Spider class and run it
     phone_spider = PhoneSpider()
-    print(phone_spider)
     phone_spider.logger.info('Starting Spider')
     phone_spider.start_requests()
