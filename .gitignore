@@ -1,4 +1,4 @@
 .venv
 .env
 __pycache__
-spiders/settings.py
+temp_phone/settings.py
