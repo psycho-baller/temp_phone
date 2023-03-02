@@ -61,8 +61,8 @@ class PhoneSpider(Spider):
             client = Client(self.account_sid, self.auth_token)
             message = client.messages.create(
                 body=f'\n{current_phone_number} \n {self.info_url}',
-                from_=f'whatsapp:{self.twilio_phone_number}',
-                to=f'whatsapp:{self.my_phone_number}'
+                from_=f'{self.twilio_phone_number}',
+                to=f'{self.my_phone_number}'
             )
 
             # # Print a confirmation message to the console
