@@ -71,8 +71,8 @@ class PhoneSpider(Spider):
             # stop the periodic job
             # Raise the CloseSpider exception to stop the spider
             # raise CloseSpider('Condition met')
-            self.crawler.stop()
-            # self.crawler.engine.close_spider(self, 'Condition met')
+            # self.crawler.stop()
+            self.crawler.engine.close_spider(self, 'Condition met')
 
             return None
 
